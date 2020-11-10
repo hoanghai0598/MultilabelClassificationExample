@@ -7,10 +7,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.model_selection import train_test_split
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.metrics import recall_score, precision_score, f1_score
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.ensemble import RandomForestClassifier
 from time import process_time
-from tqdm import tqdm
 
 t1_start = process_time()
 
@@ -20,12 +19,17 @@ df_malware = pd.read_csv(r"E:\Doan\FinalDataset\URL\Malware_dataset.csv", header
 df_phishing = pd.read_csv(r"E:\Doan\FinalDataset\URL\phishing_dataset.csv", header=None)
 df_spam = pd.read_csv(r"E:\Doan\FinalDataset\URL\spam_dataset.csv", header=None)
 #df_add = pd.read_csv(r'E:\Datasets_for_ML\Dataset\Doan\Using-machine-learning-to-detect-malicious-URLs-master\data\data.csv')
+df_benign = df_benign.drop_duplicates();
+df_spam = df_spam.drop_duplicates();
+df_malware = df_malware.drop_duplicates();
+df_deface = df_deface.drop_duplicates();
+df_phishing = df_phishing.drop_duplicates();
 
 df_benign['label'] = 'benign'
 df_deface['label'] = 'deface'
 df_spam['label'] = 'spam'
 df_malware['label'] = 'malware'
-df_phishing['label'] = 'phising'
+df_phishing['label'] = 'phishing'
 #df_add['label'] = 0
 
 #print(df_add)
@@ -44,6 +48,7 @@ df = pd.concat([df, df_spam])
 df = pd.concat([df, df_deface])
 df = pd.concat([df, df_phishing])
 #df = pd.concat([df, df_add])
+
 print('-----------1.DONE--------------')
 def makeTokens(f):
     token_By_Slash = str(f.encode('utf-8')).split('/')	#loai bo dau /
@@ -63,6 +68,7 @@ def makeTokens(f):
 data = df['URL']
 multilabel_binarizer = MultiLabelBinarizer()
 y = multilabel_binarizer.fit_transform(df['label']) #One hot encoder
+
 print(y)
 print(y.shape)
 print('-----------2.DONE--------------')
@@ -75,19 +81,14 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 print('-----------3.DONE-------------')
 print(y_test)
 print(y_test.shape)
-'''
-logreg = LogisticRegression(multi_class="ovr")
-#knn = KNeighborsClassifier()
-svm = LinearSVC(multi_class="ovr")
-for classifier in [logreg, svm]:
-    clf = OneVsRestClassifier(classifier)
-    clf.fit(X_train, y_train)
-    print('----------------------------')
-    print("Precision score", precision_score(X_test, y_test, average='weighted'))
-    print("Recall score ", recall_score(X_test, y_test, average='weighted'))
-    print("F1 score ", f1_score(X_test, y_test, average='weighted'))
+
+model = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state = 42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print(confusion_matrix(y_test.argmax(axis=1), y_pred.argmax(axis=1)))
+#print(classification_report(y_test.argmax(axis=1), y_pred.argmax(axis=1)))
 
 print('------------ALLDONE-------------')
-'''
+
 t1_stop = process_time()
 print("Elapsed time during the whole program in seconds:",t1_stop-t1_start)

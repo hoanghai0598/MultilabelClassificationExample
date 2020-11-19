@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC
-from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.ensemble import RandomForestClassifier
@@ -66,8 +66,8 @@ def makeTokens(f):
 #print(df.shape)
 #print(df.head())
 data = df['URL']
-multilabel_binarizer = MultiLabelBinarizer()
-y = multilabel_binarizer.fit_transform(df['label']) #One hot encoder
+Label_binarizer = LabelBinarizer()
+y = Label_binarizer.fit_transform(df['label']) #One hot encoder
 
 print(y)
 print(y.shape)
